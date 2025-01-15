@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { createGroup } from "../data-access/groups";
+import { createGroup } from "../../data-access/groups";
 import { redirect } from "next/navigation";
 
 export const createGroupAction = async (formData: FormData) => {
