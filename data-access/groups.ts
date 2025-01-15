@@ -57,3 +57,34 @@ export async function getGroup(groupid: string) {
     }
 }
 
+export async function checkUserMembership(groupid: string) {
+    const supabase = await createClient();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        return false;
+    }
+    try {
+        const { data, error } = await supabase
+        .from("group_members")
+        .select("*")
+        .eq("group_id", groupid)
+        .eq("user_id", user.id);
+        
+        const member = data?.[0]
+    if(!member) {
+        return false
+    } 
+    if (error) {
+        throw error;
+
+    } else return true
+
+    } catch(error: any) {
+        console.error("Error checking membership in group.", error.message)
+    }
+   
+
+}
