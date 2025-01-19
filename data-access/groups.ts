@@ -51,9 +51,28 @@ export async function getGroup(groupid: string) {
             throw error;
         }
 
-        return groups;
+        return groups[0];
     } catch (error: any) {
         console.error("Error fetching group.", error.message)
+    }
+}
+
+// get groups where logged in user is a member
+export async function getUserGroups(userId: string) {
+    const supabase = await createClient();
+    try {
+        const { data: groups, error } = await supabase
+        .from("group_members")
+        .select("groups(id, name, description)")
+        .eq("user_id", userId);
+
+        if (error) {
+            throw error;
+        }
+        console.log(groups)
+        return groups;
+    } catch (error: any) {
+        console.error("Error fetching users groups.", error.message)
     }
 }
 
@@ -88,3 +107,21 @@ export async function checkUserMembership(groupid: string) {
    
 
 }
+
+export async function getGroupMembers(groupId: string) {
+    const supabase = await createClient();
+    try {
+        const { data: members, error } = await supabase
+        .from("group_members")
+        .select("name, id")
+        .eq("group_id", groupId);
+
+        if(error) {
+            throw error;
+        }
+        return members;
+    } catch(error: any) {
+        console.error("Error getting group members.", error.message)
+    }
+}
+
