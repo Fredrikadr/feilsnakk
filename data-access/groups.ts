@@ -62,9 +62,9 @@ export async function getUserGroups(userId: string) {
     const supabase = await createClient();
     try {
         const { data: groups, error } = await supabase
-        .from("group_members")
-        .select("groups(id, name, description)")
-        .eq("user_id", userId);
+            .from("group_members")
+            .select("groups(id, name, description)")
+            .eq("user_id", userId);
 
         if (error) {
             throw error;
@@ -87,24 +87,24 @@ export async function checkUserMembership(groupid: string) {
     }
     try {
         const { data, error } = await supabase
-        .from("group_members")
-        .select("*")
-        .eq("group_id", groupid)
-        .eq("user_id", user.id);
-        
+            .from("group_members")
+            .select("*")
+            .eq("group_id", groupid)
+            .eq("user_id", user.id);
+
         const member = data?.[0]
-    if(!member) {
-        return false
-    } 
-    if (error) {
-        throw error;
+        if (!member) {
+            return false
+        }
+        if (error) {
+            throw error;
 
-    } else return true
+        } else return true
 
-    } catch(error: any) {
+    } catch (error: any) {
         console.error("Error checking membership in group.", error.message)
     }
-   
+
 
 }
 
@@ -112,16 +112,33 @@ export async function getGroupMembers(groupId: string) {
     const supabase = await createClient();
     try {
         const { data: members, error } = await supabase
-        .from("group_members")
-        .select("name, id")
-        .eq("group_id", groupId);
+            .from("group_members")
+            .select("name, id")
+            .eq("group_id", groupId);
 
-        if(error) {
+        if (error) {
             throw error;
         }
         return members;
-    } catch(error: any) {
+    } catch (error: any) {
         console.error("Error getting group members.", error.message)
     }
 }
 
+
+export async function getEntries(memberIds: number[]) {
+    const supabase = await createClient();
+
+    try {
+        const { data: entries, error } = await supabase
+        .from("entries")
+        .select("*")
+        .in("member_id", memberIds);
+        if (error) {
+            throw error;
+        }
+        return entries;
+    } catch (error: any) {
+        console.error("Error getting entries members.", error.message)
+    }
+}
