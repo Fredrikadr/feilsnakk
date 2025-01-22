@@ -1,16 +1,34 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 export default function EntriesTable(props) {
     const [selected, setSelected] = useState("");
     const { entries, members } = props;
+    const [filteredEntries, setFilteredEntries] = useState("")
 
+    useEffect(() => {
+        if(!selected) {
+            setSelected(members[0])
+        }
 
+        const newEntries = entries.filter((entry) => entry.member_id === selected.id)
+        setFilteredEntries(newEntries)
+
+    }, [selected])
+
+   
+    console.log(filteredEntries, "filtered entries")
     console.log(entries)
-    console.log(members)
+
     return (
         <>
+            <div>
+                {members && members.map((member) => (
+                    <button key={member.id} onClick={() => setSelected(member)}>{member.name}</button>
+                ))}
+            </div>
+
             <table>
                 <thead>
                     <tr>
@@ -21,7 +39,7 @@ export default function EntriesTable(props) {
 
                 </thead>
                 <tbody>
-                    {entries && entries.map((entry) => (
+                    {filteredEntries && filteredEntries.map((entry) => (
                         <tr key={entry.id}>
                             <td>{entry.said}</td>
                             <td>{entry.meant}</td>
