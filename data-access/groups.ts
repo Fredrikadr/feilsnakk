@@ -126,22 +126,38 @@ export async function getGroupMembers(groupId: string) {
 }
 
 
-export async function getEntries(memberIds: number[]) {
+export async function getEntries(memberIds: number[], showPending: boolean) {
     const supabase = await createClient();
 
     try {
-        const { data: entries, error } = await supabase
-            .from("entries")
-            .select("*")
-            .in("member_id", memberIds);
-        if (error) {
-            throw error;
+
+        if (showPending) {
+            const { data: entries, error } = await supabase
+                .from("entries")
+                .select("*")
+                .in("member_id", memberIds);
+            if (error) {
+                throw error;
+            }
+            return entries;
+        } else {
+            const { data: entries, error } = await supabase
+                .from("entries")
+                .select("*")
+                .eq("approved", true)
+                .in("member_id", memberIds);
+            if (error) {
+                throw error;
+            }
+            return entries;
         }
-        return entries;
+
+
     } catch (error: any) {
         console.error("Error getting entries members.", error.message)
     }
 }
+
 
 export const addMemberToGroup = async (name: string, groupId: string) => {
     const supabase = await createClient();
@@ -199,7 +215,7 @@ interface EntryInterface {
 
 export const addEntry = async (formData: EntryInterface) => {
     const supabase = await createClient();
-    const {said, meant, context, member_id} = formData;
+    const { said, meant, context, member_id } = formData;
 
     try {
         const { data, error } = await supabase
