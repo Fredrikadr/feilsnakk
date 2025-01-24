@@ -131,14 +131,60 @@ export async function getEntries(memberIds: number[]) {
 
     try {
         const { data: entries, error } = await supabase
-        .from("entries")
-        .select("*")
-        .in("member_id", memberIds);
+            .from("entries")
+            .select("*")
+            .in("member_id", memberIds);
         if (error) {
             throw error;
         }
         return entries;
     } catch (error: any) {
         console.error("Error getting entries members.", error.message)
+    }
+}
+
+export const addMemberToGroup = async (name: string, groupId: string) => {
+    const supabase = await createClient();
+    const nameCheck = await isNameAvailable(name, groupId)
+    try {
+        if(!nameCheck) {
+            throw new Error("Name is already in use.");
+        }
+        const { data, error } = await supabase
+            .from('group_members')
+            .insert([
+                {
+                    name,
+                    role: "member",
+                    group_id: groupId,
+                },
+            ])
+            .select()
+        if (error) {
+            throw error;
+        }
+        return data;
+    } catch (error: any) {
+        console.error("Error creating new member.", error.message)
+    }
+}
+
+export const isNameAvailable = async (name: string, groupId: string) => {
+    const supabase = await createClient();
+    try {
+        const { data, error } = await supabase
+            .from("group_members")
+            .select("id")
+            .eq("group_id", groupId)
+            .eq("name", name.toLowerCase());
+
+        if (error) {
+            throw error;
+        }
+        console.log(data)
+        return data?.length === 0;
+    } catch (error: any) {
+        console.error("Error checking name availability:", error.message);
+        return false;
     }
 }
