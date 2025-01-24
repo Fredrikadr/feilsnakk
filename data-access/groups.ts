@@ -147,7 +147,7 @@ export const addMemberToGroup = async (name: string, groupId: string) => {
     const supabase = await createClient();
     const nameCheck = await isNameAvailable(name, groupId)
     try {
-        if(!nameCheck) {
+        if (!nameCheck) {
             throw new Error("Name is already in use.");
         }
         const { data, error } = await supabase
@@ -163,7 +163,7 @@ export const addMemberToGroup = async (name: string, groupId: string) => {
         if (error) {
             throw error;
         }
-        return data;
+        return data[0];
     } catch (error: any) {
         console.error("Error creating new member.", error.message)
     }
@@ -186,5 +186,39 @@ export const isNameAvailable = async (name: string, groupId: string) => {
     } catch (error: any) {
         console.error("Error checking name availability:", error.message);
         return false;
+    }
+}
+
+interface EntryInterface {
+    said: string;
+    meant: string;
+    context: string | undefined;
+    member_id: string;
+
+}
+
+export const addEntry = async (formData: EntryInterface) => {
+    const supabase = await createClient();
+    const {said, meant, context, member_id} = formData;
+
+    try {
+        const { data, error } = await supabase
+            .from("entries")
+            .insert([
+                {
+                    said,
+                    meant,
+                    context,
+                    member_id,
+                },
+            ])
+            .select()
+        if (error) {
+            throw error;
+        }
+
+        return data[0];
+    } catch (error: any) {
+        console.error("Error adding entry.", error.message);
     }
 }
